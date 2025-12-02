@@ -102,7 +102,6 @@ reduce_lr = keras.callbacks.ReduceLROnPlateau(
     min_lr=0.00001
 )
 
-# Train model
 print("\nTraining model...")
 history = model.fit(
     train_generator,
