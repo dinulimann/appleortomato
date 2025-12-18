@@ -141,7 +141,7 @@ while True:
 
     frame_count += 1
 
-# Cleanup
-cap.release()
-cv2.destroyAllWindows()
-print("Aplikasi ditutup.")
+# # Cleanup
+# cap.release()
+# cv2.destroyAllWindows()
+# print("Aplikasi ditutup.")
