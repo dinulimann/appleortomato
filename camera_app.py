@@ -39,7 +39,6 @@ if not cap.isOpened():
     print("Error: Tidak dapat membuka kamera!")
     exit(1)
 
-# Set resolusi kamera
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
