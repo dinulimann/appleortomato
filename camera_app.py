@@ -26,12 +26,10 @@ if os.path.exists('class_labels.txt'):
             idx, name = line.strip().split(':')
             class_labels[int(idx)] = name
 else:
-    # Default labels jika file tidak ada
     class_labels = {0: 'apples', 1: 'tomatoes'}
 
 print(f"Class labels: {class_labels}")
 
-# Inisialisasi kamera
 print("Membuka kamera...")
 cap = cv2.VideoCapture(0)
 
