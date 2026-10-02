@@ -52,6 +52,7 @@ print("================\n")
 frame_count = 0
 prediction_text = ""
 confidence = 0.0
+color = (255, 255, 255)
 
 while True:
     ret, frame = cap.read()
@@ -63,18 +64,19 @@ while True:
     # Mirror frame untuk pengalaman lebih natural
     frame = cv2.flip(frame, 1)
 
+    # Region of interest di tengah frame
+    height, width = frame.shape[:2]
+    roi_size = min(height, width) - 100
+    roi_x = (width - roi_size) // 2
+    roi_y = (height - roi_size) // 2
+
     # Proses prediksi setiap 5 frame untuk performa lebih baik
     if frame_count % 5 == 0:
-        # Ambil region of interest di tengah frame
-        height, width = frame.shape[:2]
-        roi_size = min(height, width) - 100
-        roi_x = (width - roi_size) // 2
-        roi_y = (height - roi_size) // 2
-
         roi = frame[roi_y:roi_y+roi_size, roi_x:roi_x+roi_size]
 
-        # Preprocess image
-        img = cv2.resize(roi, IMG_SIZE)
+        # Preprocess image (OpenCV memakai BGR, model dilatih dengan RGB)
+        img = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, IMG_SIZE)
         img = img.astype('float32') / 255.0
         img = np.expand_dims(img, axis=0)
 
@@ -101,10 +103,9 @@ while True:
         else:
             prediction_text = "TIDAK YAKIN"
             color = (0, 0, 255)  # Red
-            confidence = confidence
 
-        # Gambar ROI box
-        cv2.rectangle(frame, (roi_x, roi_y), (roi_x+roi_size, roi_y+roi_size), color, 3)
+    # Gambar ROI box
+    cv2.rectangle(frame, (roi_x, roi_y), (roi_x+roi_size, roi_y+roi_size), color, 3)
 
     # Display prediction
     # Background untuk text
@@ -114,7 +115,7 @@ while True:
 
     # Text
     cv2.putText(frame, prediction_text, (20, 60),
-                cv2.FONT_HERSHEY_BOLD, 1.5, color, 3)
+                cv2.FONT_HERSHEY_DUPLEX, 1.5, color, 3)
     cv2.putText(frame, f"Confidence: {confidence*100:.1f}%", (20, 100),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
@@ -138,3 +139,5 @@ while True:
 
     frame_count += 1
 
+cap.release()
+cv2.destroyAllWindows()

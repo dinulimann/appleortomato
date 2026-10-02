@@ -3,10 +3,11 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import os
+import kagglehub
 import matplotlib.pyplot as plt
 
-# Path ke dataset
-DATASET_PATH = os.path.expanduser("~/.cache/kagglehub/datasets/samuelcortinhas/apples-or-tomatoes-image-classification/versions/1")
+# Path ke dataset (kagglehub memakai cache jika dataset sudah di-download)
+DATASET_PATH = kagglehub.dataset_download("samuelcortinhas/apples-or-tomatoes-image-classification")
 TRAIN_DIR = os.path.join(DATASET_PATH, "train")
 TEST_DIR = os.path.join(DATASET_PATH, "test")
 
@@ -14,6 +15,7 @@ TEST_DIR = os.path.join(DATASET_PATH, "test")
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
 EPOCHS = 20
+VALIDATION_SPLIT = 0.2
 
 print("Setting up data generators...")
 
@@ -26,10 +28,12 @@ train_datagen = ImageDataGenerator(
     horizontal_flip=True,
     zoom_range=0.2,
     shear_range=0.2,
-    fill_mode='nearest'
+    fill_mode='nearest',
+    validation_split=VALIDATION_SPLIT
 )
 
-# Hanya rescale untuk testing
+# Hanya rescale untuk validation (split dari folder train) dan testing
+val_datagen = ImageDataGenerator(rescale=1./255, validation_split=VALIDATION_SPLIT)
 test_datagen = ImageDataGenerator(rescale=1./255)
 
 # Load training data
@@ -37,19 +41,32 @@ train_generator = train_datagen.flow_from_directory(
     TRAIN_DIR,
     target_size=IMG_SIZE,
     batch_size=BATCH_SIZE,
-    class_mode='binary'
+    class_mode='binary',
+    subset='training'
 )
 
-# Load testing data
+# Load validation data (dipakai untuk checkpoint & early stopping)
+val_generator = val_datagen.flow_from_directory(
+    TRAIN_DIR,
+    target_size=IMG_SIZE,
+    batch_size=BATCH_SIZE,
+    class_mode='binary',
+    subset='validation',
+    shuffle=False
+)
+
+# Load testing data (hanya untuk evaluasi akhir)
 test_generator = test_datagen.flow_from_directory(
     TEST_DIR,
     target_size=IMG_SIZE,
     batch_size=BATCH_SIZE,
-    class_mode='binary'
+    class_mode='binary',
+    shuffle=False
 )
 
 print(f"\nClass indices: {train_generator.class_indices}")
 print(f"Training samples: {train_generator.samples}")
+print(f"Validation samples: {val_generator.samples}")
 print(f"Testing samples: {test_generator.samples}")
 
 # Build model menggunakan transfer learning dengan MobileNetV2
@@ -106,7 +123,7 @@ print("\nTraining model...")
 history = model.fit(
     train_generator,
     epochs=EPOCHS,
-    validation_data=test_generator,
+    validation_data=val_generator,
     callbacks=[checkpoint, early_stopping, reduce_lr]
 )
 
