@@ -51,3 +51,6 @@ screenshot_*.jpg
 # Dataset (akan di-download otomatis)
 data/
 dataset/
+
+# Local editor/assistant settings
+.claude/

@@ -2,6 +2,24 @@
 
 Aplikasi klasifikasi gambar untuk mendeteksi apel atau tomat secara real-time menggunakan kamera.
 
+## Overview (English)
+
+Real-time image classifier that tells **apples from tomatoes** through a webcam.
+
+- **Model:** transfer learning on **MobileNetV2** (ImageNet weights), 224×224 input, binary classification, with data augmentation. The best checkpoint is saved during training, together with a training-history chart.
+- **App:** OpenCV camera window with a region-of-interest box, live prediction and confidence; `s` saves a screenshot, `q` quits.
+- **Data:** [Apples or Tomatoes](https://www.kaggle.com/datasets/samuelcortinhas/apples-or-tomatoes-image-classification) dataset from Kaggle, downloaded by `download_dataset.py`.
+
+```bash
+pip install -r requirements.txt
+python download_dataset.py && python train_model.py && python camera_app.py
+```
+
+Detailed instructions below are in Indonesian.
+
+---
+
+
 ## Dataset
 
 Dataset diambil dari Kaggle: [Apples or Tomatoes Image Classification](https://www.kaggle.com/datasets/samuelcortinhas/apples-or-tomatoes-image-classification)
